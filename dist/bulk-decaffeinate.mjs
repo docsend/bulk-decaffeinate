@@ -1944,7 +1944,8 @@ function execLive(command) {
 var resolveConfig$1 = (function resolveConfig(commander$$1) {
   var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
       needsJscodeshift = _ref.needsJscodeshift,
-      needsEslint = _ref.needsEslint;
+      needsEslint = _ref.needsEslint,
+      needsPrettier = _ref.needsPrettier;
 
   var config, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, filename, currentDirFiles, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, _filename;
 
@@ -2133,6 +2134,25 @@ var resolveConfig$1 = (function resolveConfig(commander$$1) {
 
         case 89:
           _context.t22 = _context.t21;
+
+          if (!needsPrettier) {
+            _context.next = 96;
+            break;
+          }
+
+          _context.next = 93;
+          return regeneratorRuntime.awrap(resolvePrettierPath(config));
+
+        case 93:
+          _context.t23 = _context.sent;
+          _context.next = 97;
+          break;
+
+        case 96:
+          _context.t23 = null;
+
+        case 97:
+          _context.t24 = _context.t23;
           return _context.abrupt('return', {
             decaffeinateArgs: _context.t2,
             filesToProcess: _context.t3,
@@ -2152,10 +2172,11 @@ var resolveConfig$1 = (function resolveConfig(commander$$1) {
             skipEslintFix: _context.t17,
             decaffeinatePath: _context.t18,
             jscodeshiftPath: _context.t20,
-            eslintPath: _context.t22
+            eslintPath: _context.t22,
+            prettierPath: _context.t24
           });
 
-        case 91:
+        case 99:
         case 'end':
           return _context.stop();
       }
@@ -2389,52 +2410,87 @@ function resolveEslintPath(config) {
   }, null, this);
 }
 
+function resolvePrettierPath(config) {
+  return regeneratorRuntime.async(function resolvePrettierPath$(_context6) {
+    while (1) {
+      switch (_context6.prev = _context6.next) {
+        case 0:
+          if (!config.skipPrettierFix) {
+            _context6.next = 2;
+            break;
+          }
+
+          return _context6.abrupt('return', null);
+
+        case 2:
+          if (!config.prettierPath) {
+            _context6.next = 4;
+            break;
+          }
+
+          return _context6.abrupt('return', config.prettierPath);
+
+        case 4:
+          _context6.next = 6;
+          return regeneratorRuntime.awrap(resolveBinary('prettier'));
+
+        case 6:
+          return _context6.abrupt('return', _context6.sent);
+
+        case 7:
+        case 'end':
+          return _context6.stop();
+      }
+    }
+  }, null, this);
+}
+
 /**
  * Determine the shell command that can be used to run the given binary,
  * prompting to globally install it if necessary.
  */
 function resolveBinary(binaryName) {
   var nodeModulesPath, rl, answer;
-  return regeneratorRuntime.async(function resolveBinary$(_context6) {
+  return regeneratorRuntime.async(function resolveBinary$(_context7) {
     while (1) {
-      switch (_context6.prev = _context6.next) {
+      switch (_context7.prev = _context7.next) {
         case 0:
           nodeModulesPath = './node_modules/.bin/' + binaryName;
-          _context6.next = 3;
+          _context7.next = 3;
           return regeneratorRuntime.awrap(exists(nodeModulesPath));
 
         case 3:
-          if (!_context6.sent) {
-            _context6.next = 7;
+          if (!_context7.sent) {
+            _context7.next = 7;
             break;
           }
 
-          return _context6.abrupt('return', nodeModulesPath);
+          return _context7.abrupt('return', nodeModulesPath);
 
         case 7:
-          _context6.prev = 7;
-          _context6.next = 10;
+          _context7.prev = 7;
+          _context7.next = 10;
           return regeneratorRuntime.awrap(exec('which ' + binaryName));
 
         case 10:
-          return _context6.abrupt('return', binaryName);
+          return _context7.abrupt('return', binaryName);
 
         case 13:
-          _context6.prev = 13;
-          _context6.t0 = _context6['catch'](7);
+          _context7.prev = 13;
+          _context7.t0 = _context7['catch'](7);
 
           console.log(binaryName + ' binary not found on the PATH or in node_modules.');
           rl = readline.createInterface(process.stdin, process.stdout);
-          _context6.next = 19;
+          _context7.next = 19;
           return regeneratorRuntime.awrap(rl.question('Run "npm install -g ' + binaryName + '"? [Y/n] '));
 
         case 19:
-          answer = _context6.sent;
+          answer = _context7.sent;
 
           rl.close();
 
           if (!answer.toLowerCase().startsWith('n')) {
-            _context6.next = 23;
+            _context7.next = 23;
             break;
           }
 
@@ -2442,16 +2498,16 @@ function resolveBinary(binaryName) {
 
         case 23:
           console.log('Installing ' + binaryName + ' globally...');
-          _context6.next = 26;
+          _context7.next = 26;
           return regeneratorRuntime.awrap(execLive('npm install -g ' + binaryName));
 
         case 26:
           console.log('Successfully installed ' + binaryName + '\n');
-          return _context6.abrupt('return', binaryName);
+          return _context7.abrupt('return', binaryName);
 
         case 28:
         case 'end':
-          return _context6.stop();
+          return _context7.stop();
       }
     }
   }, null, this, [[7, 13]]);
@@ -2826,6 +2882,43 @@ function makeEslintFixFn(config, _ref2) {
         }
       }
     }, null, this, [[14, 18]]);
+  };
+}
+
+var runPrettierFix$1 = (function runPrettierFix(jsFiles, config) {
+  return regeneratorRuntime.async(function runPrettierFix$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          _context.next = 2;
+          return regeneratorRuntime.awrap(runWithProgressBar$1(config, 'Running prettier --write on all files...', jsFiles, makePrettierFixFn(config)));
+
+        case 2:
+        case 'end':
+          return _context.stop();
+      }
+    }
+  }, null, this);
+});
+
+function makePrettierFixFn(config) {
+  return function runEslint(path$$1) {
+    return regeneratorRuntime.async(function runEslint$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            _context2.next = 2;
+            return regeneratorRuntime.awrap(exec(config.prettierPath + ' --write ' + path$$1, { maxBuffer: 10000 * 1024 }));
+
+          case 2:
+            return _context2.abrupt('return', { error: null });
+
+          case 3:
+          case 'end':
+            return _context2.stop();
+        }
+      }
+    }, null, this);
   };
 }
 
@@ -3354,26 +3447,35 @@ var convert$1 = (function convert(config) {
           return regeneratorRuntime.awrap(runEslintFix$1(jsFiles, config, { isUpdate: false }));
 
         case 62:
-          if (!config.codePrefix) {
+          if (config.skipPrettierFix) {
             _context6.next = 65;
             break;
           }
 
           _context6.next = 65;
-          return regeneratorRuntime.awrap(prependCodePrefix$1(config, jsFiles, config.codePrefix));
+          return regeneratorRuntime.awrap(runPrettierFix$1(jsFiles, config, { isUpdate: false }));
 
         case 65:
+          if (!config.codePrefix) {
+            _context6.next = 68;
+            break;
+          }
+
+          _context6.next = 68;
+          return regeneratorRuntime.awrap(prependCodePrefix$1(config, jsFiles, config.codePrefix));
+
+        case 68:
           postProcessCommitMsg = 'decaffeinate: Run post-processing cleanups on ' + shortDescription;
 
           console.log('Generating the third commit: ' + postProcessCommitMsg + '...');
-          _context6.next = 69;
+          _context6.next = 72;
           return regeneratorRuntime.awrap(git().raw(['add', '-f'].concat(toConsumableArray(thirdCommitModifiedFiles))));
 
-        case 69:
-          _context6.next = 71;
+        case 72:
+          _context6.next = 74;
           return regeneratorRuntime.awrap(makeCommit$1(postProcessCommitMsg));
 
-        case 71:
+        case 74:
 
           console.log('Successfully ran decaffeinate on ' + pluralize(coffeeFiles.length, 'file') + '.');
           console.log('You should now fix lint issues in any affected files.');
@@ -3381,7 +3483,7 @@ var convert$1 = (function convert(config) {
           console.log('You can run "bulk-decaffeinate clean" to remove those files.');
           console.log('To allow git to properly track file history, you should NOT squash the generated commits together.');
 
-        case 76:
+        case 79:
         case 'end':
           return _context6.stop();
       }
@@ -4301,7 +4403,7 @@ function runCommand(command) {
           }
 
           _context.next = 12;
-          return regeneratorRuntime.awrap(resolveConfig$1(commander, { needsJscodeshift: true, needsEslint: true }));
+          return regeneratorRuntime.awrap(resolveConfig$1(commander, { needsJscodeshift: true, needsEslint: true, needsPrettier: true }));
 
         case 12:
           _config = _context.sent;
@@ -4319,7 +4421,7 @@ function runCommand(command) {
           }
 
           _context.next = 20;
-          return regeneratorRuntime.awrap(resolveConfig$1(commander, { needsJscodeshift: true, needsEslint: true }));
+          return regeneratorRuntime.awrap(resolveConfig$1(commander, { needsJscodeshift: true, needsEslint: true, needsPrettier: true }));
 
         case 20:
           _config2 = _context.sent;
