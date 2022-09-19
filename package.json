@@ -1,5 +1,6 @@
 {
   "name": "bulk-decaffeinate",
+  "version": "3.3.2",
   "description": "Run decaffeinate and related operations on a whole codebase, or just part of one.",
   "main": "dist/bulk-decaffeinate.js",
   "jsnext:main": "dist/bulk-decaffeinate.mjs",
