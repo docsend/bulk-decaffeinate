@@ -2177,7 +2177,7 @@ function resolveDecaffeinateArgs(config) {
 
 function resolveFixImportsConfig(config) {
   var fixImportsConfig = config.fixImportsConfig;
-  if (!fixImportsConfig && config.useJSModules) {
+  if ((fixImportsConfig === null || fixImportsConfig === undefined) && config.useJSModules) {
     fixImportsConfig = {
       searchPath: '.'
     };
